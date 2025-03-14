@@ -1,0 +1,19 @@
+SAMPLE TEST
+
+Welcome to the Calculator!
+
+Enter an arithmetic expression (or type 'history' / 'exit'): sqrt (25) - 2 * 3
+Result: 4.358898943540674
+Do you want to continue? (y/n): y
+
+Enter an arithmetic expression (or type 'history' / 'exit'): 89 - 14 + cos(1)
+Result: 75.99984769515639
+Do you want to continue? (y/n): y
+
+Enter an arithmetic expression (or type 'history' / 'exit'): history
+Calculation History:
+sqrt (25) - 2 * 3 = 4.358898943540674
+89 - 14 + cos(1) = 75.99984769515639
+
+Enter an arithmetic expression (or type 'history' / 'exit'): exit
+Thank you for using the Calculator!

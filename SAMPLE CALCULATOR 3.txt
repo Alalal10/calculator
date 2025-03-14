@@ -1,0 +1,24 @@
+SAMPLE TEST 3
+
+Welcome to the Calculator!
+
+Enter an arithmetic expression (or type 'history' / 'exit'): (7 * 9) - 85 + cos2
+Result: -21.000609172980905
+Do you want to continue? (y/n): y
+
+Enter an arithmetic expression (or type 'history' / 'exit'): tan25 - cos15
+Result: 0.4459414684752595
+Do you want to continue? (y/n): y
+
+Enter an arithmetic expression (or type 'history' / 'exit'): 147 + (sqrt(8) - 2) / 3
+Result: 147.81649658092772
+Do you want to continue? (y/n): y
+
+Enter an arithmetic expression (or type 'history' / 'exit'): history
+Calculation History:
+(7 * 9) - 85 + cos2 = -21.000609172980905
+tan25 - cos15 = 0.4459414684752595
+147 + (sqrt(8) - 2) / 3 = 147.81649658092772
+
+Enter an arithmetic expression (or type 'history' / 'exit'): exit
+Thank you for using the Calculator!

@@ -1,0 +1,17 @@
+SAMPLE TEST 2
+
+Welcome to the Calculator!
+
+Enter an arithmetic expression (or type 'history' / 'exit'): 114 - (85 * 2) + 1
+Result: -55.0
+Do you want to continue? (y/n): Y
+
+Enter an arithmetic expression (or type 'history' / 'exit'): - sqrt (9)
+ERROR!
+Error: null
+Do you want to continue? (y/n): y
+
+Enter an arithmetic expression (or type 'history' / 'exit'): log (85) + 12
+Result: 1.9867717342662448
+Do you want to continue? (y/n): n
+Thank you for using the Calculator!

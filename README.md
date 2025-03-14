@@ -1,44 +1,29 @@
 CALCULATOR
 
-Initializing the Program
+The main method initializes the program, repeatedly prompts the user to input arithmetic expressions or commands (history, exit), and processes them. If a valid expression is entered, it calls evaluateExpression() to calculate the result, which is then displayed and saved in history. The loop continues until the user decides to exit by typing n after the prompt asking if they want to continue.
+    
+    
+    import java.util.ArrayList;
+    import java.util.Scanner;
+    import java.util.Stack;
 
-     import java.util.ArrayList;
-     import java.util.Scanner;
-
-Here, we create a list called history that will store all the calculations and their results.
-
-        public class Main {
-        private static ArrayList<String> history = new ArrayList<>();
-
-This is the main method of the program. We create a Scanner object to read text input from the user, and we print a welcome message.
+       public class Main {
+       private static final ArrayList<String> history = new ArrayList<>();
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Welcome to the Calculator!");
-        
-The program enters an infinite loop. It keeps asking the user to enter a mathematical expression, and the input is saved in the input variable.
 
         while (true) {
-            System.out.print("Please enter your arithmetic expression: ");
-            String input = scanner.nextLine();
-
-If the user types exit, the program will stop running and break out of the loop.
+            System.out.print("\nEnter an arithmetic expression (or type 'history' / 'exit'): ");
+            String input = scanner.nextLine().trim();
 
             if (input.equalsIgnoreCase("exit")) {
                 break;
-
-If the user types history, the program calls the printHistory() method to show all previous calculations. Then it goes back to asking for a new input.
-            
             } else if (input.equalsIgnoreCase("history")) {
                 printHistory();
                 continue;
             }
-Inside the try block:
-
-The program calls evaluateExpression(input) to calculate the result of the expression the user entered.
-It then prints the result.
-The input and the result are saved in the history list.
-If there’s an error (like dividing by zero or an invalid expression), the program will catch the error and print an error message.
 
             try {
                 double result = evaluateExpression(input);
@@ -47,67 +32,154 @@ If there’s an error (like dividing by zero or an invalid expression), the prog
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }
-After each calculation, the program asks if the user wants to continue or exit. If the user types n, the program stops.
 
-            System.out.println("If you want to see the history, type 'history'. If not, type 'exit'.");
-            System.out.print("Do you want to continue? (y / n) : ");
-            String choice = scanner.nextLine();
+            System.out.print("Do you want to continue? (y/n): ");
+            String choice = scanner.nextLine().trim();
             if (choice.equalsIgnoreCase("n")) {
                 break;
             }
         }
-Once the program ends, it prints a thank you message and closes the Scanner object to free up resources.
 
         System.out.println("Thank you for using the Calculator!");
         scanner.close();
     }
-In the evaluateExpression method:
-
-The input is split into parts using split(" "), which separates the string by spaces.
-The first part is the first number (num1), the second part is the operator (like +, -, etc.), and the third part (if exists) is the second number (num2).
+his method prepares the input by removing all spaces and then converts the input expression from infix notation to postfix notation using infixToPostfix(). After that, the postfix expression is evaluated by the evaluatePostfix() method, and the result is returned.
 
     private static double evaluateExpression(String input) throws Exception {
-        String[] tokens = input.split(" ");
-        if (tokens.length < 2) {
-            throw new Exception("Invalid expression format");
+        input = input.replaceAll("\\s+", ""); 
+        return evaluatePostfix(infixToPostfix(input));
+    }
+This method converts a given infix expression into postfix notation. It processes each character, handling digits, operators, parentheses, and functions (like sqrt, sin, etc.). It uses a stack to manage operators and parentheses, ensuring correct order of operations. Functions are identified and handled separately. The result is the postfix version of the input expression.
+
+    private static String infixToPostfix(String expression) throws Exception {
+        StringBuilder output = new StringBuilder();
+        Stack<String> operators = new Stack<>();
+        char[] tokens = expression.toCharArray();
+
+        for (int i = 0; i < tokens.length; i++) {
+            char c = tokens[i];
+
+            if (Character.isDigit(c) || c == '.') {
+                while (i < tokens.length && (Character.isDigit(tokens[i]) || tokens[i] == '.')) {
+                    output.append(tokens[i++]);
+                }
+                output.append(" ");
+                i--;
+            } else if (c == '(') {
+                operators.push(String.valueOf(c));
+            } else if (c == ')') {
+                while (!operators.isEmpty() && !operators.peek().equals("(")) {
+                    output.append(operators.pop()).append(" ");
+                }
+                if (operators.isEmpty()) throw new Exception("Mismatched parentheses");
+                operators.pop(); 
+            } else if (isFunctionStart(c, tokens, i)) {
+                String function = getFunctionName(tokens, i);
+                operators.push(function);
+                i += function.length() - 1; 
+            } else if (isOperator(c)) {
+                while (!operators.isEmpty() && precedence(operators.peek()) >= precedence(String.valueOf(c))) {
+                    output.append(operators.pop()).append(" ");
+                }
+                operators.push(String.valueOf(c));
+            } else {
+                throw new Exception("Invalid character in expression");
+            }
         }
 
-        double num1 = Double.parseDouble(tokens[0]);
-        String operator = tokens[1];
-        double num2 = (tokens.length > 2) ? Double.parseDouble(tokens[2]) : 0;
-Based on the operator (like +, -, /, etc.), the program performs the corresponding operation.
-If the user tries to divide by zero, an exception is thrown.
-If the operator is invalid, an exception is also thrown.
+        while (!operators.isEmpty()) {
+            output.append(operators.pop()).append(" ");
+        }
 
-        return switch (operator) {
-            case "+" -> num1 + num2;
-            case "-" -> num1 - num2;
-            case "*" -> num1 * num2;
-            case "/" -> {
-                if (num2 == 0) throw new Exception("Cannot divide by zero");
-                yield num1 / num2;
+        return output.toString();
+    }
+
+    private static boolean isFunctionStart(char c, char[] tokens, int i) {
+        return Character.isAlphabetic(c) && (i == 0 || !Character.isDigit(tokens[i-1]));
+    }
+
+    private static String getFunctionName(char[] tokens, int index) {
+        StringBuilder function = new StringBuilder();
+        while (index < tokens.length && Character.isAlphabetic(tokens[index])) {
+            function.append(tokens[index]);
+            index++;
+        }
+        return function.toString();
+    }
+This method evaluates a postfix expression. It uses a stack to push numbers and pop them when operators are encountered to perform calculations. It supports basic arithmetic operations (+, -, *, /, %), exponentiation (^), and advanced functions (sqrt, sin, cos, tan, and log). Each time an operator or function is encountered, the corresponding operation is performed on the numbers in the stack.
+
+
+    private static double evaluatePostfix(String postfix) throws Exception {
+        Stack<Double> stack = new Stack<>();
+        String[] tokens = postfix.split(" ");
+
+        for (String token : tokens) {
+            if (token.isEmpty()) continue;
+
+            if (token.matches("-?\\d+(\\.\\d+)?")) { 
+                stack.push(Double.parseDouble(token));
+            } else if (token.equals("^")) { 
+                double b = stack.pop();
+                double a = stack.pop();
+                stack.push(Math.pow(a, b));
+            } else if (token.equals("sqrt")) { 
+                double a = stack.pop();
+                stack.push(Math.sqrt(a));
+            } else if (token.equals("sin")) { 
+                double a = stack.pop();
+                stack.push(Math.sin(Math.toRadians(a)));
+            } else if (token.equals("cos")) { 
+                double a = stack.pop();
+                stack.push(Math.cos(Math.toRadians(a)));
+            } else if (token.equals("tan")) { 
+                double a = stack.pop();
+                stack.push(Math.tan(Math.toRadians(a)));
+            } else if (token.equals("log")) { 
+                double a = stack.pop();
+                stack.push(Math.log10(a));
+            } else { 
+                double b = stack.pop();
+                double a = stack.pop();
+                switch (token) {
+                    case "+" -> stack.push(a + b);
+                    case "-" -> stack.push(a - b);
+                    case "*" -> stack.push(a * b);
+                    case "/" -> {
+                        if (b == 0) throw new Exception("Cannot divide by zero");
+                        stack.push(a / b);
+                    }
+                    case "%" -> stack.push(a % b);
+                }
             }
-            case "%" -> num1 % num2;
-            case "^" -> Math.pow(num1, num2);
-            case "sqrt" -> Math.sqrt(num1);
-            case "abs" -> Math.abs(num1);
-            case "round" -> (double) Math.round(num1);
-            default -> throw new Exception("Invalid operator");
+        }
+
+        return stack.pop();
+    }
+isOperator() checks if a given character is a mathematical operator.
+precedence() returns the precedence of operators to ensure proper order of operations when converting from infix to postfix notation.
+
+    private static boolean isOperator(char c) {
+        return c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^';
+    }
+
+    private static int precedence(String op) {
+        return switch (op) {
+            case "+", "-" -> 1;
+            case "*", "/", "%" -> 2;
+            case "^" -> 3;
+            default -> -1;
         };
     }
-In the printHistory method:
-
-It checks if there are any records in the history list.
-If the list is empty, it prints "No past calculations".
-Otherwise, it prints all the records (operations and results) from the history.
+This method prints the history of all calculations performed during the session. If there are no past calculations, it informs the user that the history is empty.
 
     private static void printHistory() {
         if (history.isEmpty()) {
             System.out.println("No past calculations.");
         } else {
+            System.out.println("Calculation History:");
             for (String record : history) {
                 System.out.println(record);
-            }
+             }
           }
-        }
-     }
+       }
+    }
